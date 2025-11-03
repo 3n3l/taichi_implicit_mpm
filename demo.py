@@ -4,56 +4,54 @@ from gradient_descent import GradientDescentSolver
 from newton_optimization_solver import NewtonSolver
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     import argparse
 
-    parser = argparse.ArgumentParser(description='MPM')
-    parser.add_argument('--dim', type=int,
-                        default=2,
-                        help='dimension')
-    parser.add_argument('--implicit', action='store_true',
-                        help='implicit or not')
-    parser.add_argument('--difftest', action='store_true',
-                        help='do difftest or not')
-    parser.add_argument('--line_search', action='store_true',
-                        help='do line search in newton or not')
-    parser.add_argument('--gradient_descent', action='store_true',
-                        help='do gradient descent or not')
+    parser = argparse.ArgumentParser(description="MPM")
+    parser.add_argument("--dim", type=int, default=2, help="dimension")
+    parser.add_argument("--implicit", action="store_true", help="implicit or not")
+    parser.add_argument("--difftest", action="store_true", help="do difftest or not")
+    parser.add_argument("--line_search", action="store_true", help="do line search in newton or not")
+    parser.add_argument("--gradient_descent", action="store_true", help="do gradient descent or not")
     args = parser.parse_args()
 
     dim = args.dim
     assert dim == 2 or dim == 3
 
     ti.init(arch=ti.cuda, kernel_profiler=True)
-    
+
     newton_tolearance = 1e-6 if dim == 2 else 1e-12
     res = (512, 512) if dim == 2 else (1024, 1024, 1024)
     dtype = ti.f32
-    optimization_solver_type = 'newton'
+    optimization_solver_type = "newton"
     if args.gradient_descent:
-        optimization_solver_type = 'gradient_descent'
+        optimization_solver_type = "gradient_descent"
     dt = 1e-4
     if args.implicit:
         dt = 1e-3
 
     visualization_limit = dt
     optimization_solver = None
-    if optimization_solver_type == 'gradient_descent':
+    if optimization_solver_type == "gradient_descent":
         optimization_solver = (
-        optimization_solver_type, GradientDescentSolver(max_iterations=100,
-                                                        adaptive_step_size=False))
-    elif optimization_solver_type == 'newton':
-        optimization_solver = (optimization_solver_type, NewtonSolver(line_search=args.line_search,
-                                                                      max_iterations=10, 
-                                                                      tolerance=newton_tolearance))
+            optimization_solver_type,
+            GradientDescentSolver(max_iterations=100, adaptive_step_size=False),
+        )
+    elif optimization_solver_type == "newton":
+        optimization_solver = (
+            optimization_solver_type,
+            NewtonSolver(line_search=args.line_search, max_iterations=10, tolerance=newton_tolearance),
+        )
 
-    solver = MlsMpmSolver(res,
-                          dt=dt,
-                          gravity=9.8,
-                          dtype=dtype,
-                          implicit=args.implicit,
-                          optimization_solver=optimization_solver,
-                          do_diff_test=args.difftest)
+    solver = MlsMpmSolver(
+        res,
+        dt=dt,
+        gravity=9.8,
+        dtype=dtype,
+        implicit=args.implicit,
+        optimization_solver=optimization_solver,
+        do_diff_test=args.difftest,
+    )
     solver.initialize()
 
     if dim == 2:
@@ -68,7 +66,7 @@ if __name__ == '__main__':
         #                 palette_indices=solver.material)
         #     gui.show(f'{solver.step:06d}.png')  # Change to gui.show(f'{frame:06d}.png') to write images to disk
         #
-        window = ti.ui.Window('Taichi MLS-MPM', res)
+        window = ti.ui.Window("Taichi MLS-MPM", res)
         canvas = window.get_canvas()
 
         while window.running:
@@ -79,9 +77,7 @@ if __name__ == '__main__':
             for s in range(int(5)):
                 solver.advance_one_time_step()
             canvas.set_background_color((0.067, 0.184, 0.255))
-            canvas.circles(solver.x,
-                           radius=0.0025,
-                           per_vertex_color=solver.colors)
+            canvas.circles(solver.x, radius=0.0025, per_vertex_color=solver.colors)
             window.show()
     elif dim == 3:
         res = (1024, 1024)

@@ -12,27 +12,27 @@ class ConjugateGradientSolver:
         self.dim = None
         self.multiply = None
         self.project = None
-    
+
     def initialize(self, dim, shape, functions_dict, dtype=ti.f32):
         # Function to compute the Ap in CG
         self.multiply = functions_dict["multiply"]
         self.project = functions_dict["project"]
         self.dim = dim
-        
+
         self.r = ti.Vector.field(dim, shape=shape, dtype=dtype)
         self.p = ti.Vector.field(dim, shape=shape, dtype=dtype)
         self.q = ti.Vector.field(dim, shape=shape, dtype=dtype)
         self.Ap = ti.Vector.field(dim, shape=shape, dtype=dtype)
         self.sum = ti.field(dtype=dtype, shape=())
-        
+
     @ti.kernel
     def reinitialize(self):
         for I in ti.grouped(self.r):
             for d in ti.static(range(self.dim)):
-                self.r[I][d] = 0.
-                self.p[I][d] = 0.
-                self.q[I][d] = 0.
-                self.Ap[I][d] = 0.
+                self.r[I][d] = 0.0
+                self.p[I][d] = 0.0
+                self.q[I][d] = 0.0
+                self.Ap[I][d] = 0.0
 
     @ti.kernel
     def reduction(self, x: ti.template()) -> ti.f32:
@@ -64,12 +64,12 @@ class ConjugateGradientSolver:
             dst[I] = src_1[I] + scale * src_2[I]
 
     @ti.kernel
-    def compute_residual(self, b:ti.template()):
+    def compute_residual(self, b: ti.template()):
         for I in ti.grouped(b):
             self.r[I] = b[I] - self.Ap[I]
 
     @ti.kernel
-    def compute_difference(self, dst:ti.template(), src1:ti.template(), src2:ti.template()):
+    def compute_difference(self, dst: ti.template(), src1: ti.template(), src2: ti.template()):
         for I in ti.grouped(dst):
             dst[I] = src1[I] - src2[I]
 
@@ -103,13 +103,17 @@ class ConjugateGradientSolver:
 
         residual_preconditoned_norm = ti.sqrt(zkTrk)
         local_tolerance = min(residual_preconditoned_norm * self.relative_tolerance, self.tolerance)
-        print(f"\033[1;31m CG local tolerance = {local_tolerance} \033[0m")
+        # print(f"\033[1;31m CG local tolerance = {local_tolerance} \033[0m")
         for i in range(self.max_iterations):
             if residual_preconditoned_norm < local_tolerance:
-                print(f"\033[1;31m CG terminated at {i}, (precondtioned norm) Residual = {residual_preconditoned_norm} \033[0m")
+                # print(
+                # f"\033[1;31m CG terminated at {i}, (precondtioned norm) Residual = {residual_preconditoned_norm} \033[0m"
+                # )
                 break
             if i % 49 == 0:
-                print(f"\033[1;31m CG iteration: {i}, (precondtioned norm) Residual = {residual_preconditoned_norm} \033[0m")
+                # print(
+                # f"\033[1;31m CG iteration: {i}, (precondtioned norm) Residual = {residual_preconditoned_norm} \033[0m"
+                # )
                 pass
             self.multiply(self.p, self.Ap)
             self.project(self.Ap)

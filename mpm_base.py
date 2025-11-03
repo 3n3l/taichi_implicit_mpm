@@ -1,5 +1,3 @@
-
-
 class MPMSimulationBase:
     def __init__(self, implicit=False):
         self.implicit = implicit
@@ -37,4 +35,3 @@ class MPMSimulationBase:
         self.particles_to_grid()
         self.grid_velocity_update()
         self.grid_to_particles()
-

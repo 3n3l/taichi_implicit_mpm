@@ -35,10 +35,10 @@ class GradientDescentSolver:
             compute_gradient(self.step_direction)
             self.update(x, self.step_direction)
             residual_norm = self.compute_residual_norm(self.step_direction)
-            if (n+1) % 50 == 0:
-                print(f'\033[1;36m [Gradient Descent] Iter = {n}, Residual Norm = {residual_norm}, Step size = {self.step_size} \033[0m')
+            # if (n+1) % 50 == 0:
+            # print(f'\033[1;36m [Gradient Descent] Iter = {n}, Residual Norm = {residual_norm}, Step size = {self.step_size} \033[0m')
             if residual_norm < self.tolerance:
-                print(f'\033[1;36m [Gradient Descent] Terminated at iter = {n}, Residual Norm = {residual_norm} \033[0m')
+                # print(f'\033[1;36m [Gradient Descent] Terminated at iter = {n}, Residual Norm = {residual_norm} \033[0m')
                 break
             if self.adaptive_step_size:
                 if self.step_direction_last_step is not None:
