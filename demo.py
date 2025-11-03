@@ -72,6 +72,9 @@ if __name__ == '__main__':
         canvas = window.get_canvas()
 
         while window.running:
+            if window.get_event(ti.ui.PRESS):
+                if window.event.key in [ti.GUI.ESCAPE, ti.GUI.EXIT]:
+                    window.running = False  # Stop the simulation
             # for s in range(int(visualization_limit // solver.dt)):
             for s in range(int(5)):
                 solver.advance_one_time_step()
@@ -94,6 +97,9 @@ if __name__ == '__main__':
         camera.fov(55)
 
         while window.running:
+            if window.get_event(ti.ui.PRESS):
+                if window.event.key in [ti.GUI.ESCAPE, ti.GUI.EXIT]:
+                    window.running = False  # Stop the simulation
             for s in range(int(visualization_limit // solver.dt)):
                 solver.advance_one_time_step()
             # Render
